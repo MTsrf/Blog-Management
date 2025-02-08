@@ -9,6 +9,7 @@ export const POSTS_LIST = gql`
         content
         updatedAt
         author {
+          id
           name
         }
       }
@@ -32,6 +33,7 @@ export const GET_POSTS = gql`
         content
         updatedAt
         author {
+          id
           name
         }
       }
@@ -51,6 +53,7 @@ export const GET_POST_BY_ID = gql`
         createdAt
         updatedAt
         author {
+          id
           name
         }
       }

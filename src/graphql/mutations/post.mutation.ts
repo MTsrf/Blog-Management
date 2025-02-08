@@ -15,3 +15,29 @@ export const CREATE_POST = gql`
     }
   }
 `;
+
+export const EDIT_POST = gql`
+  mutation editPost($id: ID!, $input: EditPostInput!) {
+    editPost(id: $id, input: $input) {
+      status
+      message
+      success
+      data {
+        id
+        title
+        content
+        updatedAt
+      }
+    }
+  }
+`;
+
+export const DELETE_POST = gql`
+  mutation DeletePost($id: ID!) {
+    deletePost(id: $id) {
+      status
+      message
+      success
+    }
+  }
+`;

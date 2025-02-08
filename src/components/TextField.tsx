@@ -30,7 +30,6 @@ const TextField = forwardRef<HTMLInputElement, TextFieldProps>(
             } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             disabled={loading}
           />
-          {/* Password Toggle Icon */}
           {type === "password" && (
             <button
               type="button"

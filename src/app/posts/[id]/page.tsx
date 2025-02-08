@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { auth } from "@/auth";
+import { PostActions } from "@/features/PostActions";
 import { GET_POST_BY_ID } from "@/graphql/query/post.query";
 import { clientServer } from "@/lib/apollo-client";
 import { formatTimestamp } from "@/lib/utils";
@@ -17,6 +19,7 @@ type GetPostByIdResponse = {
   getPostById: PostResponse;
 };
 export default async function Page({ params }: { params: { id: string } }) {
+  const session = await auth();
   const client = clientServer();
   const id = (await params)?.id;
 
@@ -39,14 +42,24 @@ export default async function Page({ params }: { params: { id: string } }) {
               {data?.getPostById?.data?.title}
             </h1>
             <div className="h-5"></div>
-            <div className="flex justify-between border-b border-primary">
+            <div className="flex justify-between items-center mb-2">
               <span>
                 Updated on {formatTimestamp(data?.getPostById?.data?.updatedAt)}
               </span>
-              <span>
-                By {"  "} {data?.getPostById?.data?.author?.name}
-              </span>
+              <div className="flex gap-5 items-center">
+                <span>
+                  By {"  "} {data?.getPostById?.data?.author?.name}
+                </span>
+                {session?.isAuthenticated && (
+                  <PostActions
+                    postId={data?.getPostById?.data?.id}
+                    authorId={data?.getPostById?.data?.author?.id || ""}
+                    currentUserId={session?.user?.id || ""}
+                  />
+                )}
+              </div>
             </div>
+            <div className="border-b border-primary"></div>
             <div className="h-5"></div>
           </div>
           <div className="relative w-full h-[500px] mb-4">

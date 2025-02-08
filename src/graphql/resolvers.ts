@@ -56,24 +56,6 @@ const protected_resolver =
 
 export const resolvers = {
   Query: {
-    // getPostByDashboard: async () => {
-    //   const posts = await prisma.post.findMany({
-    //     take: 6,
-    //     include: {
-    //       author: {
-    //         select: {
-    //           id: true,
-    //           name: true,
-    //         },
-    //       },
-    //     },
-    //     orderBy: {
-    //       createdAt: "desc",
-    //     },
-    //   });
-    //   return { posts },
-
-    // },
     getPosts: async (
       _: never,
       {
@@ -148,7 +130,7 @@ export const resolvers = {
             },
           },
         });
-        console.log({ post });
+
         return {
           status: 200,
           message: "Success",
@@ -173,7 +155,7 @@ export const resolvers = {
     ) => {
       try {
         const existingUser = await prisma.user.findUnique({ where: { email } });
-        console.log({ existingUser });
+
         if (existingUser) {
           return {
             status: 400,
@@ -269,6 +251,111 @@ export const resolvers = {
             data: post,
           };
         } catch (error) {
+          throw new GraphQLError("Internal Server Error", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", error },
+          });
+        }
+      }
+    ),
+    editPost: protected_resolver(
+      async (
+        _: never,
+        {
+          id,
+          input,
+        }: { id: string; input: { title: string; content: string } },
+        context: Context
+      ) => {
+        try {
+          const existingPost = await prisma.post.findUnique({
+            where: { id },
+            select: { authorId: true },
+          });
+
+          if (!existingPost) {
+            return {
+              status: 400,
+              message: "Post Not Found ",
+              success: false,
+              data: null,
+            };
+          }
+
+          if (existingPost.authorId !== context.user!.id) {
+            return {
+              status: 401,
+              message: "Unauthorized Error",
+              success: false,
+              data: null,
+            };
+          }
+
+          const updatedPost = await prisma.post.update({
+            where: { id },
+            data: {
+              title: input.title,
+              content: input.content,
+              updatedAt: new Date(),
+            },
+          });
+
+          return {
+            status: 200,
+            message: "Updated successfully",
+            success: true,
+            data: updatedPost,
+          };
+        } catch (error) {
+          if (error instanceof GraphQLError) {
+            throw error;
+          }
+
+          throw new GraphQLError("Internal Server Error", {
+            extensions: { code: "INTERNAL_SERVER_ERROR", error },
+          });
+        }
+      }
+    ),
+    deletePost: protected_resolver(
+      async (_: never, { id }: { id: string }, context: Context) => {
+        try {
+          const existingPost = await prisma.post.findUnique({
+            where: { id },
+            select: { authorId: true },
+          });
+
+          if (!existingPost) {
+            return {
+              status: 400,
+              message: "Post Not Found ",
+              success: false,
+              data: null,
+            };
+          }
+
+          if (existingPost.authorId !== context.user!.id) {
+            return {
+              status: 401,
+              message: "Unauthorized Error",
+              success: false,
+              data: null,
+            };
+          }
+
+          await prisma.post.delete({
+            where: { id },
+          });
+
+          return {
+            status: 200,
+            message: "Post deleted successfully",
+            success: true,
+          };
+        } catch (error) {
+          if (error instanceof GraphQLError) {
+            throw error;
+          }
+
           throw new GraphQLError("Internal Server Error", {
             extensions: { code: "INTERNAL_SERVER_ERROR", error },
           });

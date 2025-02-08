@@ -49,6 +49,17 @@ export const typeDefs = gql`
     totalPosts: Int
   }
 
+  input EditPostInput {
+    title: String!
+    content: String!
+  }
+
+  type DeletePostResponse {
+    status: Int!
+    message: String!
+    success: Boolean!
+  }
+
   type Query {
     getPosts(page: Int, limit: Int, search: String): PostConnection
     getPostById(id: ID!): CreatePostResponse
@@ -60,8 +71,7 @@ export const typeDefs = gql`
     signup(email: String!, password: String!, name: String!): AuthResponse
     login(email: String!, password: String!): AuthResponse
     createPost(title: String!, content: String!): CreatePostResponse
-    updatePost(id: ID!, title: String, content: String, category: String): Post!
-    deletePost(id: ID!): Post!
-    logout: Boolean!
+    editPost(id: ID!, input: EditPostInput!): CreatePostResponse
+    deletePost(id: ID!): DeletePostResponse!
   }
 `;
