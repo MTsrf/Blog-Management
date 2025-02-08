@@ -18,7 +18,11 @@ type PostResponse = {
 type GetPostByIdResponse = {
   getPostById: PostResponse;
 };
-export default async function Page({ params }: { params: { id: string } }) {
+
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+export default async function Page({ params }: PageProps) {
   const session = await auth();
   const client = clientServer();
   const id = (await params)?.id;
